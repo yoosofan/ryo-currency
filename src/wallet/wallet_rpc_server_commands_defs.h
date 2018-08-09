@@ -876,9 +876,9 @@ struct COMMAND_RPC_RESCAN_BLOCKCHAIN
 {
 	struct request
 	{
-		uint64_t height;
+		bool height;
 		BEGIN_KV_SERIALIZE_MAP()
-		KV_SERIALIZE(height, (uint64_t)-1)
+		KV_SERIALIZE(height, (bool)false)
 		END_KV_SERIALIZE_MAP()
 	};
 
