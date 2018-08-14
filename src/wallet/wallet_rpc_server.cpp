@@ -1404,10 +1404,10 @@ bool wallet_rpc_server::on_rescan_blockchain(const wallet_rpc::COMMAND_RPC_RESCA
 
 	try
 	{
-		bool old_vlaue_of_explicit_refresh=m_wallet->explicit_refresh_from_block_height();
-		m_wallet->explicit_refresh_from_block_height(req.height);
-		m_wallet->rescan_blockchain(req.height);
-		m_wallet->explicit_refresh_from_block_height(old_vlaue_of_explicit_refresh);
+		bool old_value_of_explicit_refresh = m_wallet->explicit_refresh_from_block_height();
+		m_wallet->explicit_refresh_from_block_height(req.rescan_and_disable_optimization);
+		m_wallet->rescan_blockchain(req.rescan_and_disable_optimization);
+		m_wallet->explicit_refresh_from_block_height(old_value_of_explicit_refresh);
 	}
 	catch(const std::exception &e)
 	{
