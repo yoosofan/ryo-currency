@@ -876,9 +876,9 @@ struct COMMAND_RPC_RESCAN_BLOCKCHAIN
 {
 	struct request
 	{
-		bool rescan_and_disable_optimization;
+		bool full_rescan;
 		BEGIN_KV_SERIALIZE_MAP()
-		KV_SERIALIZE(rescan_and_disable_optimization, (bool)false)
+		KV_SERIALIZE_OPT(full_rescan, false)
 		END_KV_SERIALIZE_MAP()
 	};
 
@@ -1617,6 +1617,29 @@ struct COMMAND_RPC_CREATE_WALLET
 		KV_SERIALIZE(password)
 		KV_SERIALIZE(language)
 		KV_SERIALIZE(short_address)
+		END_KV_SERIALIZE_MAP()
+	};
+	struct response
+	{
+		BEGIN_KV_SERIALIZE_MAP()
+		END_KV_SERIALIZE_MAP()
+	};
+};
+
+struct COMMAND_RPC_RESTORE_WALLET
+{
+	struct request
+	{
+		std::string filename;
+		std::string password;
+		std::string seed;
+		uint64_t refresh_start_height;
+
+		BEGIN_KV_SERIALIZE_MAP()
+		KV_SERIALIZE(filename)
+		KV_SERIALIZE(password)
+		KV_SERIALIZE(seed)
+		KV_SERIALIZE(refresh_start_height)
 		END_KV_SERIALIZE_MAP()
 	};
 	struct response
