@@ -47,6 +47,9 @@
 #include "include_base_utils.h"
 using namespace epee;
 
+#define GULPS_CAT_MAJOR "basic_util"
+#include "common/gulps.hpp"
+
 #include "common/base58.h"
 #include "common/dns_utils.h"
 #include "common/int-util.h"
@@ -284,14 +287,13 @@ bool is_coinbase(const transaction &tx)
 }
 //-----------------------------------------------------------------------
 template <network_type NETTYPE>
-bool get_account_address_from_str(address_parse_info &info, std::string const &str, const bool silent)
+bool get_account_address_from_str(address_parse_info &info, std::string const &str)
 {
 	blobdata data;
 	uint64_t prefix;
 	if(!tools::base58::decode_addr(str, prefix, data))
 	{
-		if(!silent)
-			LOG_PRINT_L2("Invalid address format");
+		GULPS_ERROR("Invalid address format");
 		return false;
 	}
 
@@ -321,8 +323,7 @@ bool get_account_address_from_str(address_parse_info &info, std::string const &s
 		break;
 */
 	default:
-		if(!silent)
-			LOG_PRINT_L1("Wrong address prefix: " << prefix);
+		GULPS_ERROR("Wrong address prefix: "_s + std::to_string(prefix));
 		return false;
 	}
 
@@ -331,8 +332,7 @@ bool get_account_address_from_str(address_parse_info &info, std::string const &s
 		integrated_address iadr;
 		if(!::serialization::parse_binary(data, iadr))
 		{
-			if(!silent)
-				LOG_PRINT_L1("Account public address keys can't be parsed");
+			GULPS_ERROR("Account public address keys can't be parsed");
 			return false;
 		}
 		info.address = iadr.adr;
@@ -343,8 +343,7 @@ bool get_account_address_from_str(address_parse_info &info, std::string const &s
 		kurz_address kadr;
 		if(!::serialization::parse_binary(data, kadr))
 		{
-			if(!silent)
-				LOG_PRINT_L1("Account public address keys can't be parsed");
+			GULPS_ERROR("Account public address keys can't be parsed");
 			return false;
 		}
 
@@ -355,32 +354,24 @@ bool get_account_address_from_str(address_parse_info &info, std::string const &s
 	{
 		if(!::serialization::parse_binary(data, info.address))
 		{
-			if(!silent)
-				LOG_PRINT_L1("Account public address keys can't be parsed");
+			GULPS_ERROR("Account public address keys can't be parsed");
 			return false;
 		}
 	}
 
 	if(!crypto::check_key(info.address.m_spend_public_key) || !crypto::check_key(info.address.m_view_public_key))
 	{
-		if(!silent)
-			LOG_PRINT_L1("Failed to validate address keys");
+		GULPS_ERROR("Failed to validate address keys");
 		return false;
 	}
 
 	return true;
 }
-//--------------------------------------------------------------------------------
-bool get_account_address_from_str_or_url(
-	address_parse_info &info, network_type nettype, const std::string &str_or_url, std::function<std::string(const std::string &, const std::vector<std::string> &, bool)> dns_confirm)
-{
-	if(get_account_address_from_str(nettype, info, str_or_url))
-		return true;
-	bool dnssec_valid;
-	std::string address_str = tools::dns_utils::get_account_address_as_str_from_url(str_or_url, dnssec_valid, dns_confirm);
-	return !address_str.empty() &&
-		   get_account_address_from_str(nettype, info, address_str);
-}
+
+template bool get_account_address_from_str<MAINNET>(address_parse_info &, std::string const &);
+template bool get_account_address_from_str<TESTNET>(address_parse_info &, std::string const &);
+template bool get_account_address_from_str<STAGENET>(address_parse_info &, std::string const &);
+
 //--------------------------------------------------------------------------------
 bool operator==(const cryptonote::transaction &a, const cryptonote::transaction &b)
 {

@@ -54,7 +54,9 @@ set(common_sources
   password.cpp
   perf_timer.cpp
   threadpool.cpp
-  updates.cpp)
+  updates.cpp
+  boost_locale.cpp
+  string.cpp)
 
 if (STACK_TRACE)
   list(APPEND common_sources stack_trace.cpp)
@@ -63,6 +65,8 @@ endif()
 set(common_headers)
 
 set(common_private_headers
+  gulps.hpp
+  string.hpp
   apply_permutation.h
   base58.h
   boost_serialization_helper.h
@@ -83,11 +87,12 @@ set(common_private_headers
   perf_timer.h
   stack_trace.h
   threadpool.h
-  updates.h)
+  updates.h
+  boost_locale.hpp)
 
 ryo_private_headers(common
   ${common_private_headers})
-monero_add_library(common
+ryo_add_library(common
   ${common_sources}
   ${common_headers}
   ${common_private_headers}
@@ -104,9 +109,16 @@ target_link_libraries(common
     ${Boost_THREAD_LIBRARY}
     ${Boost_REGEX_LIBRARY}
     ${Boost_CHRONO_LIBRARY}
+    fmt::fmt-header-only
   PRIVATE
+    ${Boost_LOCALE_LIBRARY}
     ${OPENSSL_LIBRARIES}
-    ${EXTRA_LIBRARIES})
+    ${ICU_LIBRARIES}
+    ${EXTRA_LIBRARIES}
+    fmt::fmt-header-only)
+
+# activate extended color output for fmt
+target_compile_definitions(common PUBLIC -DFMT_EXTENDED_COLORS)
 
 #monero_install_headers(common
 #  ${common_headers})
